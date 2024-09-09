@@ -1,0 +1,7 @@
+name: 'FTS Post Request'
+type: module
+description: 'Realiza uma requisição POST para o endpoint MLeva'
+package: Custom
+core_version_requirement: ^10
+dependencies:
+  - drupal:node
