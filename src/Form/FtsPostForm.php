@@ -23,48 +23,43 @@ class FtsPostForm extends FormBase
      */
     public function buildForm(array $form, FormStateInterface $form_state)
     {
-        $form['field_gtin'] = [
+        // Primeiro conjunto de campos para GTIN 01 e Preço 01
+        $form['group1'] = [
+            '#type' => 'fieldset',
+            '#title' => $this->t('GTIN 01 e Preço 01'),
+        ];
+
+        $form['group1']['field_gtin_1'] = [
             '#type' => 'textfield',
-            '#title' => $this->t('GTIN/Código de Barras'),
+            '#title' => $this->t('GTIN 01'),
             '#required' => TRUE,
         ];
 
-        $form['field_descricao'] = [
-            '#type' => 'textfield',
-            '#title' => $this->t('Descrição'),
-            '#required' => TRUE,
-        ];
-
-        $form['field_marca'] = [
-            '#type' => 'textfield',
-            '#title' => $this->t('Marca'),
-            '#required' => TRUE,
-        ];
-
-        $form['field_volume'] = [
+        $form['group1']['field_preco_1'] = [
             '#type' => 'number',
-            '#title' => $this->t('Volume'),
+            '#title' => $this->t('Preço 01'),
             '#required' => TRUE,
         ];
 
-        $form['field_unidade'] = [
+        // Segundo conjunto de campos para GTIN 02 e Preço 02
+        $form['group2'] = [
+            '#type' => 'fieldset',
+            '#title' => $this->t('GTIN 02 e Preço 02'),
+        ];
+
+        $form['group2']['field_gtin_2'] = [
             '#type' => 'textfield',
-            '#title' => $this->t('Unidade'),
+            '#title' => $this->t('GTIN 02'),
             '#required' => TRUE,
         ];
 
-        $form['field_quantidade'] = [
+        $form['group2']['field_preco_2'] = [
             '#type' => 'number',
-            '#title' => $this->t('Quantidade'),
+            '#title' => $this->t('Preço 02'),
             '#required' => TRUE,
         ];
 
-        $form['field_preco'] = [
-            '#type' => 'number',
-            '#title' => $this->t('Preço'),
-            '#required' => TRUE,
-        ];
-
+        // Botão de envio do formulário
         $form['submit'] = [
             '#type' => 'submit',
             '#value' => $this->t('Submit'),
@@ -78,38 +73,34 @@ class FtsPostForm extends FormBase
      */
     public function submitForm(array &$form, FormStateInterface $form_state)
     {
-// Pegue os valores do formulário
-        $gtin = $form_state->getValue('field_gtin');
-        $description = $form_state->getValue('field_descricao');
-        $marca = $form_state->getValue('field_marca');
-        $volume = $form_state->getValue('field_volume');
-        $unidade = $form_state->getValue('field_unidade');
-        $quantidade = $form_state->getValue('field_quantidade');
-        $price = $form_state->getValue('field_preco');
+        // Pegue os valores do formulário
+        $gtin1 = $form_state->getValue('field_gtin_1');
+        $price1 = $form_state->getValue('field_preco_1');
+        $gtin2 = $form_state->getValue('field_gtin_2');
+        $price2 = $form_state->getValue('field_preco_2');
 
-// Monte o payload para a requisição POST
+        // Monte o payload para a requisição POST
         $payload = [
             'products' => [
                 [
-                    'gtin' => $gtin,
-                    'description' => $description,
-                    'marca' => $marca,
-                    'volume' => $volume,
-                    'unidade' => $unidade,
-                    'quantidade' => $quantidade,
-                    'price' => $price,
+                    'gtin' => $gtin1,
+                    'price' => $price1,
+                ],
+                [
+                    'gtin' => $gtin2,
+                    'price' => $price2,
                 ]
             ]
         ];
 
-// Faça a requisição POST usando Guzzle
+        // Faça a requisição POST usando Guzzle
         $client = new Client();
         try {
-            $response = $client->post('http://localhost:41062/w3mleva/mleva/web/mleva-post', [
+            $response = $client->post('http://host.docker.internal:41062/w3mleva/mleva/web/mleva-post', [
                 'json' => $payload,
             ]);
 
-// Verifica a resposta
+            // Verifica a resposta
             $status_code = $response->getStatusCode();
             if ($status_code == 200) {
                 $this->messenger()->addMessage($this->t('Dados enviados com sucesso!'));
